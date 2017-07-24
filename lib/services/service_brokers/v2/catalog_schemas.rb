@@ -3,11 +3,12 @@ require 'json-schema'
 module VCAP::Services::ServiceBrokers::V2
   MAX_SCHEMA_SIZE = 65_536
   class CatalogSchemas
-    attr_reader :errors, :create_instance, :update_instance
+    attr_reader :errors, :create_instance, :update_instance, :create_binding
 
     def initialize(schemas)
       @errors = VCAP::Services::ValidationErrors.new
       @schemas = schemas
+      @create_binding = {}
 
       return unless validate_structure([])
 
