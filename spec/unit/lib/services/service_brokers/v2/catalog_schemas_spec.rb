@@ -183,12 +183,6 @@ module VCAP::Services::ServiceBrokers::V2
 
               its(:valid?) { should be true }
               its(:errors) { should be_empty }
-
-              it 'does perform further validation' do
-                expect_any_instance_of(Schema).to receive(:validate_metaschema)
-                expect_any_instance_of(Schema).to receive(:validate_no_external_references)
-                subject
-              end
             end
           end
         end
@@ -205,12 +199,6 @@ module VCAP::Services::ServiceBrokers::V2
               its(:valid?) { should be false }
               its('errors.messages') { should have(1).items }
               its('errors.messages.first') { should match "Schema #{path} is larger than 64KB" }
-
-              it 'does not perform further validation' do
-                expect_any_instance_of(Schema).to_not receive(:validate_metaschema)
-                expect_any_instance_of(Schema).to_not receive(:validate_no_external_references)
-                subject
-              end
             end
           end
         end

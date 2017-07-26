@@ -49,8 +49,7 @@ module VCAP::Services::ServiceBrokers::V2
   class Schema
     include ActiveModel::Validations
 
-    validate :validate_schema_size, :validate_metaschema
-    validate :validate_no_external_references, :validate_schema_type
+    validate :validate_schema_size, :validate_metaschema, :validate_no_external_references, :validate_schema_type
 
     def initialize(schema, path)
       @schema = schema
