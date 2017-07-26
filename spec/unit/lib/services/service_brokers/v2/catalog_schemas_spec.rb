@@ -473,10 +473,60 @@ module VCAP::Services::ServiceBrokers::V2
 
       context 'service binding' do
         context 'when catalog has schemas' do
-          let(:attrs) { { 'service_binding' => {} } }
+          let(:create_binding_schema) { }
+          let(:attrs) { { 'service_binding' => { 'create' => { 'parameters' => create_binding_schema } } } }
 
-          context 'returns empty create service binding property' do
-            its(:create_binding) { should eq({}) }
+          context 'when the schema has multiple valid constraints ' do
+            let(:create_binding_schema) {
+              {
+                :'$schema' => 'http://json-schema.org/draft-04/schema#',
+                'type' => 'object',
+                :properties => { 'foo': { 'type': 'string' } },
+                :required => ['foo']
+              }
+            }
+
+            its(:create_binding) {
+              should eq(
+                       {
+                         :'$schema' => 'http://json-schema.org/draft-04/schema#',
+                         'type' => 'object',
+                         :properties => { foo: { type: 'string' } },
+                         :required => ['foo']
+                       }
+                     )
+            }
+            its(:valid?) { should be true }
+            its(:errors) { should be_empty }
+          end
+
+          context 'when attrs have nil value' do
+            {
+              'Schemas service_binding.create': { 'service_binding' => { 'create' => nil } },
+              'Schemas service_binding.create.parameters': { 'service_binding' => { 'create' => { 'parameters' => nil } } },
+            }.each do |name, test|
+              context "for property #{name}" do
+                let(:attrs) { test }
+
+                its(:create_binding) { should be_nil }
+                its(:errors) { should be_empty }
+                its(:valid?) { should be true }
+              end
+            end
+          end
+
+          context 'when attrs have a missing key' do
+            {
+              'Schemas service_binding.create': { 'service_binding' => { 'create' => {} } },
+            }.each do |name, test|
+              context "for property #{name}" do
+                let(:attrs) { test }
+
+                its(:create_binding) { should be_nil }
+                its(:errors) { should be_empty }
+                its(:valid?) { should be true }
+              end
+            end
           end
         end
       end

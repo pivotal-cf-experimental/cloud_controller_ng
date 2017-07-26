@@ -67,6 +67,7 @@ module VCAP::Services::ServiceBrokers
           extra:       catalog_plan.metadata.try(:to_json),
           create_instance_schema: catalog_plan.schemas.create_instance.try(:to_json),
           update_instance_schema: catalog_plan.schemas.update_instance.try(:to_json)
+          # , create_binding_schema: catalog_plan.schemas.create_binding.try(:to_json) TODO unit test me please please plase
         })
         @services_event_repository.with_service_plan_event(plan) do
           plan.save(changed: true)

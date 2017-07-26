@@ -135,7 +135,7 @@ module VCAP::Services::ServiceBrokers
         expect(event.actee_name).to eq(service_name)
         expect(event.space_guid).to eq('')
         expect(event.organization_guid).to eq('')
-        expect(event.metadata).to include({
+        expect(event.metadata).to eq({
           'service_broker_guid' => service.service_broker.guid,
           'unique_id' => service_id,
           'provider' => service.provider,
@@ -166,7 +166,7 @@ module VCAP::Services::ServiceBrokers
         expect(event.actee_name).to eq(plan_name)
         expect(event.space_guid).to eq('')
         expect(event.organization_guid).to eq('')
-        expect(event.metadata).to include({
+        expect(event.metadata).to eq({
           'name' => service_plan.name,
           'free' => service_plan.free,
           'description' => service_plan.description,
@@ -174,8 +174,8 @@ module VCAP::Services::ServiceBrokers
           'extra' => '{"cost":"0.0"}',
           'unique_id' => service_plan.unique_id,
           'public' => service_plan.public,
-          'active' => service_plan.active,
           'bindable' => true,
+          'active' => service_plan.active,
           'create_instance_schema' => '{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}',
           'update_instance_schema' => '{"type":"object"}'
         })

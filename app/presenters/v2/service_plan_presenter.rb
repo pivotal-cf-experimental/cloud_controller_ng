@@ -13,6 +13,7 @@ module CloudController
           entity.merge!(schemas)
           entity.delete('create_instance_schema')
           entity.delete('update_instance_schema')
+          entity.delete('update_binding_schema')
 
           entity
         end
@@ -35,7 +36,9 @@ module CloudController
                 }
               },
               'service_binding' => {
-                'create' => create_binding_schema
+                'create' => {
+                  'parameters' => create_binding_schema
+                }
               }
             }
           }

@@ -6,6 +6,7 @@ RSpec.describe 'Service Broker API integration' do
 
     let(:create_instance_schema) { { '$schema' => 'http://json-schema.org/draft-04/schema#', 'type' => 'object' } }
     let(:update_instance_schema) { { '$schema' => 'http://json-schema.org/draft-04/schema#', 'type' => 'object' } }
+    let(:create_binding_schema)  { { '$schema' => 'http://json-schema.org/draft-04/schema#', 'type' => 'object' } }
     let(:schemas) {
       {
           'service_instance' => {
@@ -17,7 +18,9 @@ RSpec.describe 'Service Broker API integration' do
               }
           },
           'service_binding' => {
-              'create' => {}
+              'create' => {
+                  'parameters' => create_binding_schema
+              }
           }
       }
     }
@@ -112,6 +115,13 @@ RSpec.describe 'Service Broker API integration' do
 
     context 'when a broker catalog defines a service binding' do
       context 'with a create plan schema' do
+        let(:create_binding_schema) {
+          {
+            '$schema' => 'http://json-schema.org/draft-04/schema#',
+            'type' => 'object'
+          }
+        }
+
         it 'responds with the schema for a service plan entry' do
           get("/v2/service_plans/#{@plan_guid}",
               {}.to_json,
@@ -119,7 +129,14 @@ RSpec.describe 'Service Broker API integration' do
 
           parsed_body = MultiJson.load(last_response.body)
           create_schema = parsed_body['entity']['schemas']['service_binding']['create']
-          expect(create_schema).to eq({})
+          expect(create_schema).to eq({
+                                        'parameters' =>
+                                          {
+                                            '$schema' => 'http://json-schema.org/draft-04/schema#',
+                                            'type' => 'object'
+                                          }
+                                      }
+                                   )
         end
       end
     end
@@ -137,15 +154,16 @@ RSpec.describe 'Service Broker API integration' do
             {
                 'service_instance' => {
                     'create' => {
-                        'parameters' =>
-                            {}
+                        'parameters' => {}
                     },
                     'update' => {
                         'parameters' => {}
                     }
                 },
                 'service_binding' => {
-                    'create' => {}
+                    'create' => {
+                        'parameters' => {}
+                    }
                 }
             }
                 )

@@ -47,7 +47,7 @@ module CloudController::Presenters::V2
                    'update' => { 'parameters' => {} }
                },
                'service_binding' => {
-                   'create' => {}
+                   'create' => { 'parameters' => {} }
                }
            },
            'service_guid' => service_plan.service_guid,
@@ -69,7 +69,7 @@ module CloudController::Presenters::V2
                   'update' => { 'parameters' => {} }
                 },
                 'service_binding' => {
-                    'create' => {}
+                  'create' => { 'parameters' => {} }
                 }
               }
             }
@@ -89,7 +89,7 @@ module CloudController::Presenters::V2
                   'update' => { 'parameters' => {} }
                 },
                 'service_binding' => {
-                  'create' => {}
+                  'create' => { 'parameters' => {} }
                 }
               }
             }
@@ -108,7 +108,7 @@ module CloudController::Presenters::V2
                   'update' => { 'parameters' => {} }
                 },
                 'service_binding' => {
-                  'create' => {}
+                  'create' => { 'parameters' => {} }
                 }
               }
             }
@@ -132,7 +132,9 @@ module CloudController::Presenters::V2
                   }
                 },
                 'service_binding' => {
-                  'create' => {}
+                  'create' => {
+                    'parameters' => {}
+                  }
                 }
               }
             }
@@ -151,7 +153,33 @@ module CloudController::Presenters::V2
                   'update' => { 'parameters' => {} }
                 },
                 'service_binding' => {
-                  'create' => {}
+                  'create' => { 'parameters' => {} }
+                }
+              }
+            }
+          )
+        end
+      end
+
+      context 'when the plan create_binding_schema is valid json' do
+        schema = { '$schema' => 'example.com/schema' }
+        let(:create_binding_schema) { schema.to_json }
+        it 'returns the service plan entity with the schema in the correct format' do
+          expect(subject.entity_hash(controller, service_plan, opts, depth, parents, orphans)).to include(
+            {
+              'schemas' => {
+                'service_instance' => {
+                  'create' => {
+                    'parameters' => {}
+                  },
+                  'update' => {
+                    'parameters' => {}
+                  }
+                },
+                'service_binding' => {
+                  'create' => {
+                    'parameters' => schema
+                  }
                 }
               }
             }
