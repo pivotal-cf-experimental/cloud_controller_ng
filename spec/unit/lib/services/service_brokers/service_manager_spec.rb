@@ -46,6 +46,13 @@ module VCAP::Services::ServiceBrokers
                           'type' => 'object'
                       }
                   }
+              },
+              'service_binding' => {
+                'create' => {
+                  'parameters' => {
+                    '$schema' => 'http://json-schema.org/draft-04/schema', 'type' => 'object'
+                  }
+                }
               }
           }
       }
@@ -177,7 +184,8 @@ module VCAP::Services::ServiceBrokers
           'bindable' => true,
           'active' => service_plan.active,
           'create_instance_schema' => '{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}',
-          'update_instance_schema' => '{"type":"object"}'
+          'update_instance_schema' => '{"type":"object"}',
+          'create_binding_schema' => '{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}'
         })
       end
 
@@ -214,6 +222,7 @@ module VCAP::Services::ServiceBrokers
           expect(JSON.parse(plan.extra)).to eq({ 'cost' => '0.0' })
           expect(plan.create_instance_schema).to eq('{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}')
           expect(plan.update_instance_schema).to eq('{"type":"object"}')
+          expect(plan.create_binding_schema).to eq('{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}')
 
           expect(plan.free).to be false
         end
@@ -253,6 +262,7 @@ module VCAP::Services::ServiceBrokers
           plan = VCAP::CloudController::ServicePlan.last
           expect(plan.create_instance_schema).to be_nil
           expect(plan.update_instance_schema).to be_nil
+          expect(plan.create_binding_schema).to be_nil
         end
       end
 
@@ -264,6 +274,7 @@ module VCAP::Services::ServiceBrokers
           plan = VCAP::CloudController::ServicePlan.last
           expect(plan.create_instance_schema).to be_nil
           expect(plan.update_instance_schema).to be_nil
+          expect(plan.create_binding_schema).to be_nil
         end
       end
 
@@ -275,6 +286,7 @@ module VCAP::Services::ServiceBrokers
           plan = VCAP::CloudController::ServicePlan.last
           expect(plan.create_instance_schema).to be_nil
           expect(plan.update_instance_schema).to be_nil
+          expect(plan.create_binding_schema).to be_nil
         end
       end
 
@@ -348,6 +360,7 @@ module VCAP::Services::ServiceBrokers
             expect(plan.bindable).to be false
             expect(plan.create_instance_schema).to be_nil
             expect(plan.update_instance_schema).to be_nil
+            expect(plan.create_binding_schema).to be_nil
 
             expect {
               service_manager.sync_services_and_plans(catalog)
@@ -360,6 +373,7 @@ module VCAP::Services::ServiceBrokers
             expect(plan.bindable).to be true
             expect(plan.create_instance_schema).to eq('{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}')
             expect(plan.update_instance_schema).to eq('{"type":"object"}')
+            expect(plan.create_binding_schema).to eq('{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}')
           end
 
           it 'creates service audit events for each service plan updated' do
@@ -385,7 +399,8 @@ module VCAP::Services::ServiceBrokers
               'bindable' => true,
               'free' => false,
               'create_instance_schema' => '{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}',
-              'update_instance_schema' => '{"type":"object"}'
+              'update_instance_schema' => '{"type":"object"}',
+              'create_binding_schema' => '{"$schema":"http://json-schema.org/draft-04/schema","type":"object"}'
             })
           end
 

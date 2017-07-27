@@ -473,7 +473,7 @@ module VCAP::Services::ServiceBrokers::V2
 
       context 'service binding' do
         context 'when catalog has schemas' do
-          let(:create_binding_schema) { }
+          let(:create_binding_schema) {}
           let(:attrs) { { 'service_binding' => { 'create' => { 'parameters' => create_binding_schema } } } }
 
           context 'when the schema has multiple valid constraints ' do
@@ -487,14 +487,13 @@ module VCAP::Services::ServiceBrokers::V2
             }
 
             its(:create_binding) {
-              should eq(
-                       {
-                         :'$schema' => 'http://json-schema.org/draft-04/schema#',
-                         'type' => 'object',
-                         :properties => { foo: { type: 'string' } },
-                         :required => ['foo']
-                       }
-                     )
+              should eq({
+                           :'$schema' => 'http://json-schema.org/draft-04/schema#',
+                           'type' => 'object',
+                           :properties => { foo: { type: 'string' } },
+                           :required => ['foo']
+                        }
+                      )
             }
             its(:valid?) { should be true }
             its(:errors) { should be_empty }

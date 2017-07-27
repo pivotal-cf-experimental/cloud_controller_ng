@@ -50,7 +50,7 @@ module VCAP::Services::ServiceBrokers::V2
       create_parameter_path = create_path + ['parameters']
       return unless validate_structure(create_parameter_path)
 
-      create_parameters = @schemas.dig *create_parameter_path
+      create_parameters = @schemas.dig(*create_parameter_path)
 
       validate_schema(create_parameter_path, create_parameters)
 
@@ -66,7 +66,7 @@ module VCAP::Services::ServiceBrokers::V2
       update_parameter_path = update_path + ['parameters']
       return unless validate_structure(update_parameter_path)
 
-      update_parameters = @schemas.dig *update_parameter_path
+      update_parameters = @schemas.dig(*update_parameter_path)
 
       validate_schema(update_parameter_path, update_parameters)
       return unless errors.empty?

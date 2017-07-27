@@ -188,7 +188,7 @@ module VCAP::CloudController
               'update' => { 'parameters' => {} }
             },
             'service_binding' => {
-              'create' => {}
+              'create' => { 'parameters' => {} }
             }
           }
                            )
