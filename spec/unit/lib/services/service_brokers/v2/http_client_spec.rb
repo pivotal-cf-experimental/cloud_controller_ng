@@ -24,6 +24,8 @@ module VCAP::Services::ServiceBrokers::V2
       )
     end
 
+    # TODO handle gracefully the lack of a guid in the user
+
     before do
       allow(VCAP::Request).to receive(:current_id).and_return(request_id)
     end

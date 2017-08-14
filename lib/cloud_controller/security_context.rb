@@ -15,6 +15,8 @@ module VCAP::CloudController
       Thread.current[:vcap_user]
     end
 
+    # TODO method to get the current_user guid
+
     def self.admin?
       roles.admin?
     end
