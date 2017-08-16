@@ -12,9 +12,23 @@ RSpec.describe 'Service Broker API integration' do
       @broker = VCAP::CloudController::ServiceBroker.find guid: @broker_guid
     end
 
-    # TODO  create false scenario for the async to prove that we do not have any guid that is invalid
-    # TODO   test for `cf create-service-broker`
+    context 'service broker registration' do
+      let(:user) { VCAP::CloudController::User.make }
+      before do
+        setup_broker_with_user(user)
+        @broker = VCAP::CloudController::ServiceBroker.find guid: @broker_guid
+      end
 
+      it 'receives the user_id in the X-Broker-API-Originating-Identity header' do
+        base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
+
+        expect(
+          a_request(:get, %r{/v2/catalog}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
+        ).to have_been_made
+      end
+    end
 
     context 'service provision request' do
       let(:user) { VCAP::CloudController::User.make }
@@ -26,9 +40,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -45,9 +59,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -56,16 +70,16 @@ RSpec.describe 'Service Broker API integration' do
       let(:user) { VCAP::CloudController::User.make }
       before do
         provision_service(user: user)
-        update_service(200, user: user)
+        upgrade_service_instance(200, user: user)
       end
 
       it 'receives the user_id in the X-Broker-API-Originating-Identity header' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:patch, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:patch, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -82,9 +96,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -103,9 +117,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -121,9 +135,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -133,16 +147,16 @@ RSpec.describe 'Service Broker API integration' do
       before do
         provision_service
         create_service_key
-        delete_service_key(user: user)
+        delete_key(user: user)
       end
 
       it 'receives the user_id in the X-Broker-API-Originating-Identity header' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -161,9 +175,9 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
         ).to have_been_made
       end
     end
@@ -183,12 +197,47 @@ RSpec.describe 'Service Broker API integration' do
         base64_encoded_user_id = Base64.strict_encode64("{\"user_id\":\"#{user.guid}\"}")
 
         expect(
-            a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
-              req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
-            end
+          a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}/service_bindings/[[:alnum:]-]+}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_id}"
+          end
+        ).to have_been_made
+      end
+    end
+
+    context 'when multiple users operate on a service instance' do
+      let(:user_a) { VCAP::CloudController::User.make }
+      let(:user_b) { VCAP::CloudController::User.make }
+      let(:user_c) { VCAP::CloudController::User.make }
+
+      before do
+        provision_service(user: user_a)
+        upgrade_service_instance(200, user: user_b)
+        deprovision_service(user: user_c)
+      end
+
+      it 'has the correct user ids for the requests' do
+        base64_encoded_user_a_id = Base64.strict_encode64("{\"user_id\":\"#{user_a.guid}\"}")
+        base64_encoded_user_b_id = Base64.strict_encode64("{\"user_id\":\"#{user_b.guid}\"}")
+        base64_encoded_user_c_id = Base64.strict_encode64("{\"user_id\":\"#{user_c.guid}\"}")
+
+        expect(
+          a_request(:put, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_a_id}"
+          end
+        ).to have_been_made
+
+        expect(
+          a_request(:patch, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_b_id}"
+          end
+        ).to have_been_made
+
+        expect(
+          a_request(:delete, %r{/v2/service_instances/#{@service_instance_guid}}).with do |req|
+            req.headers['X-Broker-Api-Originating-Identity'] == "cloudfoundry #{base64_encoded_user_c_id}"
+          end
         ).to have_been_made
       end
     end
   end
 end
-
